@@ -15,6 +15,8 @@ use yii\httpclient\Client;
 
 /**
  * Class Tim
+ *
+ * @see https://www.qcloud.com/document/product/269
  * @package xutl\tim
  */
 class Tim extends Component
@@ -32,7 +34,7 @@ class Tim extends Component
     /**
      * @var string 管理员账户
      */
-    public $adminUser;
+    public $identifier;
 
     /**
      * @var string 私钥
@@ -50,9 +52,21 @@ class Tim extends Component
     public $baseUrl = 'https://console.tim.qq.com/v4';
 
     /**
+     * @var string 用户签名
+     */
+    private $_identifierSign;
+
+    /**
      * @var Client
      */
-    public $_httpClient;
+    private $_httpClient;
+
+    //群组类型
+    const GROUP_TYPE_PRIVATE = 'Private';//私密群
+    const GROUP_TYPE_PUBLIC = 'Public';//公开群
+    const GROUP_TYPE_CHATROOM = 'ChatRoom';//聊天室
+    const GROUP_TYPE_AVCHATROOM = 'AVChatRoom';//互动直播聊天室
+    const GROUP_TYPE_BCHATROOM = 'BChatRoom';//在线成员广播大群
 
     /**
      * @throws InvalidConfigException
@@ -75,8 +89,8 @@ class Tim extends Component
             throw new InvalidConfigException ('The "accountType" property must be set.');
         }
 
-        if (empty ($this->adminUser)) {
-            throw new InvalidConfigException ('The "adminUser" property must be set.');
+        if (empty ($this->identifier)) {
+            throw new InvalidConfigException ('The "identifier" property must be set.');
         }
         if (empty ($this->privateKey)) {
             throw new InvalidConfigException ('The "adminUser" property must be set.');
@@ -92,10 +106,11 @@ class Tim extends Component
             throw new InvalidConfigException(openssl_error_string());
         }
         $publicKey = Yii::getAlias($this->publicKey);
-        $this->publicKey = openssl_pkey_get_public("file://" .$publicKey);
+        $this->publicKey = openssl_pkey_get_public("file://" . $publicKey);
         if ($this->publicKey === false) {
             throw new InvalidConfigException(openssl_error_string());
         }
+        $this->_identifierSign = $this->genSig($this->identifier);
     }
 
     /**
@@ -109,11 +124,11 @@ class Tim extends Component
     public function api($url, $method = 'POST', array $params = [], array $headers = [])
     {
         $commonParams = [
-            'identifier' => $this->adminUser,
+            'identifier' => $this->identifier,
             'sdkappid' => $this->appId,
             'random' => $this->generateRandom(),
             'contenttype' => 'json',
-            'usersig' => $this->genSig($this->adminUser)
+            'usersig' => $this->_identifierSign
         ];
         $url = $this->composeUrl($url, $commonParams);
         /** @var \yii\httpclient\Response $response */
@@ -126,23 +141,136 @@ class Tim extends Component
     }
 
     /**
-     * 将用户导入到IM中
-     * @param array $params
-     * @return array
+     * 独立模式账号导入接口
+     * @param string $identifier 用户名，长度不超过 32 字节
+     * @param string $nick 昵称
+     * @param string $faceUrl 用户头像URL。
+     * @param integer $type 账户类型 帐号类型，开发者默认无需填写，值0表示普通帐号，1表示机器人帐号。
+     * @return object
      */
-    public function accountImport(array $params)
+    public function accountImport($identifier, $nick, $faceUrl, $type = 0)
     {
-        return $this->api('im_open_login_svc/account_import', 'POST', $params);
+        return $this->api('im_open_login_svc/account_import', 'POST', [
+            'Identifier' => $identifier,
+            'Nick' => $nick,
+            'FaceUrl' => $faceUrl,
+            'Type' => $type,
+        ]);
     }
 
     /**
-     * 创建群
-     * @param array $params
-     * @return array
+     * 独立模式帐号批量导入接口
+     * @param array $accounts 用户名，长度不超过 32 字节
+     *
+     * @return object
      */
-    public function createGroup(array $params)
+    public function accountMultiImport($accounts = [])
+    {
+        return $this->api('im_open_login_svc/multiaccount_import', 'POST', [
+            'Accounts' => $accounts,
+        ]);
+    }
+
+    /**
+     * 帐号登录态失效接口
+     * @param string $identifier 用户名
+     * @return object
+     */
+    public function accountKick($identifier)
+    {
+        return $this->api('im_open_login_svc/kick', 'POST', [
+            'Identifier' => $identifier,
+        ]);
+    }
+
+    /**
+     * @param int $limit 限制回包中GroupIdList中群组的个数，不得超过10000；
+     * @param int $next 控制分页。对于分页请求，第一次填0，后面的请求填上一次返回的Next字段，当返回的Next为0，代表所有的群都拉取到了；
+     * 假设需要分页拉取，每页展示20个，则第一页的请求参数应当为{“Limit” : 20, “Next” : 0}，第二页的请求参数应当为{“Limit” : 20, “Next” : 上次返回的Next字段}，依此类推；
+     * @param string $type 可以指定拉取的群组所属的群组形态，如Public，Private，ChatRoom、AVChatRoom和BChatRoom。
+     * @return object
+     */
+    public function groupList($limit = 1000, $next = 0, $type = 'Public')
+    {
+        return $this->api('group_open_http_svc/get_appid_group_list', 'POST', [
+            'Limit' => $limit,
+            'Next' => $next,
+            'GroupType' => $type
+        ]);
+    }
+
+    /**
+     * 创建群组
+     * @param array $params
+     * @return object
+     */
+    public function groupCreate(array $params)
     {
         return $this->api('group_open_http_svc/create_group', 'POST', $params);
+    }
+
+    /**
+     * 创建群组基础接口
+     * @param string $type 群组形态，包括Public（公开群），Private（私密群），ChatRoom（聊天室），AVChatRoom（互动直播聊天室），BChatRoom（在线成员广播大群）。
+     * @param string $name 群名称，最长30字节。
+     * @param string $ownerId 群主id，自动添加到群成员中。如果不填，群没有群主。
+     * @param string $id 为了使得群组ID更加简单，便于记忆传播，腾讯云支持APP在通过REST API创建群组时自定义群组ID。详情参见：自定义群组ID。
+     * @return object
+     */
+    public function groupCreateBasic($type, $name, $ownerId = null, $id = null)
+    {
+        $params = [
+            'Type' => $type,
+            'Name' => $name,
+        ];
+        if (!is_null($ownerId)) $params['Owner_Account'] = $ownerId;
+        if (!is_null($id)) $params['GroupId'] = $id;
+        return $this->groupCreate($params);
+    }
+
+    /**
+     * 获取群组详细资料
+     * @param array $groupIdList
+     * @return object
+     */
+    public function groupInfo($groupIdList = [])
+    {
+        return $this->api('group_open_http_svc/create_group', 'POST', [
+            'GroupIdList' => $groupIdList
+        ]);
+    }
+
+    /**
+     * 获取群组成员详细资料
+     * @param string $id
+     * @param int $limit
+     * @param int $offset
+     * @param array $roleFilter
+     * @param array $infoFilter
+     * @return object
+     */
+    public function groupMemberInfo($id, $limit = 100, $offset = 0, $roleFilter = [], $infoFilter = [])
+    {
+        $params = ['GroupId' => $id, 'Limit' => $limit, 'Offset' => $offset];
+        if ($roleFilter) $params['MemberRoleFilter'] = $roleFilter;
+        if ($infoFilter) $params['MemberInfoFilter'] = $infoFilter;
+        return $this->api('group_open_http_svc/get_group_member_info', 'POST', [
+            'GroupId' => $id
+        ]);
+    }
+
+    /**
+     * 在群组中发送系统通知
+     * @param string $id
+     * @param string $content
+     * @param array $members
+     * @return object
+     */
+    public function groupSendSystemNotification($id, $content, $members = [])
+    {
+        $params = ['GroupId' => $id, 'Content' => $content];
+        if ($members) $params['ToMembers_Account'] = $members;
+        return $this->api('group_open_http_svc/send_group_system_notification', 'POST', $params);
     }
 
     /**
