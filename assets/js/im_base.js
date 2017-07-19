@@ -1,3 +1,24 @@
+(function($) {
+    $.fn.extend({
+        minTipsBox: function(b) {
+            b = $.extend({
+                tipsContent: "",
+                tipsTime: 1
+            }, b);
+            var c = 1E3 * parseFloat(b.tipsTime);
+            0 < $(".min_tips_box").length ? $(".min_tips_box").show() : $('<div class="min_tips_box"><b class="bg"></b><span class="tips_content"></span></div>').appendTo("body");
+            (function() {
+                $(".min_tips_box .tips_content").html(b.tipsContent);
+                var c = $(".min_tips_box .tips_content").width() / 2 + 10;
+                $(".min_tips_box .tips_content").css("margin-left", "-" + c + "px");
+            })();
+            setTimeout(function() {
+                $(".min_tips_box").hide();
+            }, c);
+        }
+    });
+})(jQuery);
+
 //IE9(含)以下浏览器用到的jsonp回调函数
 function jsonpCallback(rspData) {
     //设置接口返回的数据
@@ -27,7 +48,7 @@ function onMsgNotify(newMsgList) {
 
 //处理消息（私聊(包括普通消息和全员推送消息)，普通群(非直播聊天室)消息）
 function handlderMsg(msg) {
-    var fromAccount, fromAccountNick, sessType, subType,contentHtml;
+    var fromAccount, fromAccountNick, sessType, subType, contentHtml;
 
     fromAccount = msg.getFromAccount();
     if (!fromAccount) {
@@ -55,14 +76,14 @@ function handlderMsg(msg) {
                     //业务可以根据发送者帐号fromAccount是否为app管理员帐号，来判断c2c消息是否为全员推送消息，还是普通好友消息
                     //或者业务在发送全员推送消息时，发送自定义类型(webim.MSG_ELEMENT_TYPE.CUSTOM,即TIMCustomElem)的消息，在里面增加一个字段来标识消息是否为推送消息
                     contentHtml = convertMsgtoHtml(msg);
-                    webim.Log.warn('receive a new c2c msg: fromAccountNick=' + fromAccountNick+", content="+contentHtml);
+                    webim.Log.warn('receive a new c2c msg: fromAccountNick=' + fromAccountNick + ", content=" + contentHtml);
                     //c2c消息一定要调用已读上报接口
-                    var opts={
-                        'To_Account':fromAccount,//好友帐号
-                        'LastedMsgTime':msg.getTime()//消息时间戳
+                    var opts = {
+                        'To_Account': fromAccount,//好友帐号
+                        'LastedMsgTime': msg.getTime()//消息时间戳
                     };
                     webim.c2CMsgReaded(opts);
-                    alert('收到一条c2c消息(好友消息或者全员推送消息): 发送人=' + fromAccountNick+", 内容="+contentHtml);
+                    alert('收到一条c2c消息(好友消息或者全员推送消息): 发送人=' + fromAccountNick + ", 内容=" + contentHtml);
                     break;
             }
             break;
@@ -75,16 +96,16 @@ function handlderMsg(msg) {
 function sdkLogin() {
     //web sdk 登录
     webim.login(loginInfo, listeners, options,
-            function (identifierNick) {
-                webim.Log.info('webim登录成功');
-                applyJoinBigGroup(avliveRoomId);//加入大群
-            },
-            function (err) {
-            	$(document).minTipsBox({
-					tipsContent: err.ErrorInfo,
-					tipsTime: 3
-				});
-            }
+        function (identifierNick) {
+            webim.Log.info('webim登录成功');
+            applyJoinBigGroup(avliveRoomId);//加入大群
+        },
+        function (err) {
+            jQuery(document).minTipsBox({
+                tipsContent: err.ErrorInfo,
+                tipsTime: 3
+            });
+        }
     );
 }
 
@@ -94,34 +115,34 @@ function applyJoinBigGroup(groupId) {
         'GroupId': groupId//群id
     };
     webim.applyJoinBigGroup(
-            options,
-            function (resp) {
-                if (resp.JoinedStatus && resp.JoinedStatus == 'JoinedSuccess') {
-                    webim.Log.info('进群成功');
-                    selToID = groupId;
-                } else {
-                	$(document).minTipsBox({
-    					tipsContent: "进群失败",
-    					tipsTime: 3
-    				});
-                }
-            },
-            function (err) {
-                //alert(err.ErrorInfo);
+        options,
+        function (resp) {
+            if (resp.JoinedStatus && resp.JoinedStatus == 'JoinedSuccess') {
+                webim.Log.info('进群成功');
+                selToID = groupId;
+            } else {
                 $(document).minTipsBox({
-					tipsContent: err.ErrorInfo,
-					tipsTime: 3
-				});
+                    tipsContent: "进群失败",
+                    tipsTime: 3
+                });
             }
+        },
+        function (err) {
+            //alert(err.ErrorInfo);
+            $(document).minTipsBox({
+                tipsContent: err.ErrorInfo,
+                tipsTime: 3
+            });
+        }
     );
 }
 
 function unescapeHTML(html) {
-	var htmlNode = document.createElement("DIV");
-	htmlNode.innerHTML = html;
-	if(htmlNode.innerText)
-	return htmlNode.innerText; // IE
-	return htmlNode.textContent; // FF
+    var htmlNode = document.createElement("DIV");
+    htmlNode.innerHTML = html;
+    if (htmlNode.innerText)
+        return htmlNode.innerText; // IE
+    return htmlNode.textContent; // FF
 }
 //显示消息（群普通+点赞+提示+红包）
 function showMsg(msg) {
@@ -141,16 +162,16 @@ function showMsg(msg) {
     webim.Log.info(fromAccountNick);
     switch (subType) {
         case webim.GROUP_MSG_SUB_TYPE.COMMON://群普通消息
-        	msg=unescapeHTML(convertMsgtoHtml(msg));
-        	var e={data:msg};
-        	onmessage(e);
+            msg = unescapeHTML(convertMsgtoHtml(msg));
+            var e = {data: msg};
+            onmessage(e);
             break;
         case webim.GROUP_MSG_SUB_TYPE.REDPACKET://群红包消息
             break;
         case webim.GROUP_MSG_SUB_TYPE.LOVEMSG://群点赞消息
             break;
         case webim.GROUP_MSG_SUB_TYPE.TIP://群提示消息
-        	convertMsgtoHtml(msg);
+            convertMsgtoHtml(msg);
             break;
     }
 
@@ -210,11 +231,11 @@ function convertFaceMsgToHtml(content) {
     var faceUrl = null;
     var emotion = webim.Emotions[index];
     if (emotion && emotion[1]) {
-    	return emotion[0];
+        return emotion[0];
         faceUrl = emotion[1];
     }
     if (faceUrl) {
-        return	"<img src='" + faceUrl + "'/>";
+        return "<img src='" + faceUrl + "'/>";
     } else {
         return data;
     }
@@ -230,7 +251,7 @@ function convertImageMsgToHtml(content) {
     if (!oriImage) {
         oriImage = smallImage;
     }
-    return	"<img src='" + smallImage.getUrl() + "#" + bigImage.getUrl() + "#" + oriImage.getUrl() + "' style='CURSOR: hand' id='" + content.getImageId() + "' bigImgUrl='" + bigImage.getUrl() + "' onclick='imageClick(this)' />";
+    return "<img src='" + smallImage.getUrl() + "#" + bigImage.getUrl() + "#" + oriImage.getUrl() + "' style='CURSOR: hand' id='" + content.getImageId() + "' bigImgUrl='" + bigImage.getUrl() + "' onclick='imageClick(this)' />";
 }
 //解析语音消息元素
 function convertSoundMsgToHtml(content) {
@@ -267,7 +288,7 @@ function convertGroupTipMsgToHtml(content) {
     var memberCount;
     opType = content.getOpType();//群提示消息类型（操作类型）
     opUserId = content.getOpUserId();//操作人id
-    
+
     switch (opType) {
         case webim.GROUP_TIP_TYPE.JOIN://加入群
             userIdList = content.getUserIdList();
@@ -282,16 +303,16 @@ function convertGroupTipMsgToHtml(content) {
             text = text.substring(0, text.length - 1);
             text += "进入房间";
             //房间成员数加1
-            //memberCount = $('#user-icon-fans').html();
-            //// $('#user-icon-fans').html(parseInt(memberCount) + 1);
-         	$(".qlOLPeople").text(parseInt($(".qlOLPeople").text())+1);
+            //memberCount = jQuery('#user-icon-fans').html();
+            //// jQuery('#user-icon-fans').html(parseInt(memberCount) + 1);
+            jQuery(".qlOLPeople").text(parseInt(jQuery(".qlOLPeople").text()) + 1);
             break;
         case webim.GROUP_TIP_TYPE.QUIT://退出群
             text += opUserId + "离开房间";
             //房间成员数减1
-            memberCount = parseInt($(".qlOLPeople").text());
+            memberCount = parseInt(jQuery(".qlOLPeople").text());
             if (memberCount > 0) {
-            	$(".qlOLPeople").text(parseInt($(".qlOLPeople").text())-1);
+                jQuery(".qlOLPeople").text(parseInt(jQuery(".qlOLPeople").text()) - 1);
             }
             break;
         case webim.GROUP_TIP_TYPE.KICK://踢出群
@@ -492,7 +513,7 @@ function onSendMsg(my_msg) {
         return;
     }
     //获取消息内容
-    var msgtosend =my_msg;
+    var msgtosend = my_msg;
     var msgLen = webim.Tool.getStrBytes(msgtosend);
 
     if (msgtosend.length < 1) {
@@ -566,10 +587,10 @@ function onSendMsg(my_msg) {
         webim.Log.info("发消息成功");
     }, function (err) {
         webim.Log.error("发消息失败:" + err.ErrorInfo);
-        if(err.ErrorCode==10017){
-        	alert("您已经被管理员禁言!");
-        	
-        	return;
+        if (err.ErrorCode == 10017) {
+            alert("您已经被管理员禁言!");
+
+            return;
         }
     });
 }
@@ -621,8 +642,8 @@ function sendGroupLoveMsg() {
 //展示点赞动画
 function showLoveMsgAnimation() {
     //点赞数加1
-    var loveCount = $('#user-icon-like').html();
-    $('#user-icon-like').html(parseInt(loveCount) + 1);
+    var loveCount = jQuery('#user-icon-like').html();
+    jQuery('#user-icon-like').html(parseInt(loveCount) + 1);
     var toolDiv = document.getElementById("video-discuss-tool");
     var loveSpan = document.createElement("span");
     var colorList = ['red', 'green', 'blue'];
@@ -637,7 +658,7 @@ function showLoveMsgAnimation() {
 
 //选中表情
 function selectEmotionImg(selImg) {
-    $("#send_msg_text").val($("#send_msg_text").val() + selImg.id);
+    jQuery("#send_msg_text").val(jQuery("#send_msg_text").val() + selImg.id);
 }
 
 //退出大群
@@ -646,16 +667,16 @@ function quitBigGroup() {
         'GroupId': avliveRoomId//群id
     };
     webim.quitBigGroup(
-            options,
-            function (resp) {
-                webim.Log.info('退群成功');
-                $("#video_sms_list").find("li").remove();
-                //webim.Log.error('进入另一个大群:'+avliveRoomId2);
-                //applyJoinBigGroup(avliveRoomId2);//加入大群
-            },
-            function (err) {
-                alert(err.ErrorInfo);
-            }
+        options,
+        function (resp) {
+            webim.Log.info('退群成功');
+            jQuery("#video_sms_list").find("li").remove();
+            //webim.Log.error('进入另一个大群:'+avliveRoomId2);
+            //applyJoinBigGroup(avliveRoomId2);//加入大群
+        },
+        function (err) {
+            alert(err.ErrorInfo);
+        }
     );
 }
 
@@ -663,16 +684,16 @@ function quitBigGroup() {
 function logout() {
     //登出
     webim.logout(
-            function (resp) {
-                webim.Log.info('登出成功');
-                loginInfo.identifier = null;
-                loginInfo.userSig = null;
-                var indexUrl = window.location.href;
-                var pos = indexUrl.indexOf('?');
-                if (pos >= 0) {
-                    indexUrl = indexUrl.substring(0, pos);
-                }
-                window.location.href = indexUrl;
+        function (resp) {
+            webim.Log.info('登出成功');
+            loginInfo.identifier = null;
+            loginInfo.userSig = null;
+            var indexUrl = window.location.href;
+            var pos = indexUrl.indexOf('?');
+            if (pos >= 0) {
+                indexUrl = indexUrl.substring(0, pos);
             }
+            window.location.href = indexUrl;
+        }
     );
 }
