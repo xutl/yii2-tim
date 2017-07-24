@@ -23,9 +23,7 @@ class TimAsset extends AssetBundle
 
     public $js = [
         'js/json2.min.js',
-        'js/webim.js',
-        'js/im_base.js',
-        'js/im_group_notice.js',
+        'js/webim.min.js',
     ];
 
     public $depends = [
