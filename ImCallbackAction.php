@@ -30,7 +30,7 @@ class ImCallbackAction extends Action
     public $optPlatform;
 
     /**
-     * Initializes the action and ensures the temp path exists.
+     * Initializes the action.
      */
     public function init()
     {
