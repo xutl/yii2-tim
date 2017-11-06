@@ -7,9 +7,13 @@
 
 namespace xutl\tim;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 
-class Message extends Object
+/**
+ * Class Message
+ * @package xutl\tim
+ */
+class Message extends BaseObject
 {
     /**
      * Message type.

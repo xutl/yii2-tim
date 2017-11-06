@@ -8,13 +8,13 @@
 namespace xutl\tim;
 
 use Yii;
-use yii\base\Object;
-use yii\queue\RetryableJob;
+use yii\base\BaseObject;
+use yii\queue\RetryableJobInterface;
 
 /**
  * Class ImJob.
  */
-class ImJob extends Object implements RetryableJob
+class ImJob extends BaseObject implements RetryableJobInterface
 {
 
     const ACTION_ACCOUNT_CREATE = 'im_open_login_svc/account_import';//创建用户
