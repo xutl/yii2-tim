@@ -10,6 +10,10 @@ namespace xutl\tim;
 use yii\di\Instance;
 use yii\httpclient\RequestEvent;
 
+/**
+ * Class Client
+ * @package xutl\tim
+ */
 class Client extends \yii\httpclient\Client
 {
     /**
@@ -79,6 +83,7 @@ class Client extends \yii\httpclient\Client
      * 请求事件
      * @param RequestEvent $event
      * @return void
+     * @throws \yii\base\Exception
      */
     public function RequestEvent(RequestEvent $event)
     {
@@ -87,7 +92,7 @@ class Client extends \yii\httpclient\Client
             'sdkappid' => $this->appId,
             'random' => uniqid(),
             'contenttype' => 'json',
-            'usersig' => $this->_identifierSign
+            'usersig' => $this->tim->signature->make($this->identifier)
         ];
         $url = $this->composeUrl($event->request->getUrl(), $commonParams);
         $event->request->setUrl($url);

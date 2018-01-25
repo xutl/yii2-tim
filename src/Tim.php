@@ -52,7 +52,7 @@ class Tim extends ServiceLocator
      * @var string|Cache
      */
     public $cache = 'cache';
-    
+
     /**
      * Tim constructor.
      * @param array $config
