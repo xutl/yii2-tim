@@ -48,6 +48,7 @@ class ImCallbackAction extends Action
      * RESTAPI（使用REST API发送请求）、Web（使用Web SDK发送请求）、
      * Android、iOS、Windows、Mac、Unkown（使用未知类型的设备发送请求）。
      * @return array
+     * @throws \yii\base\InvalidConfigException
      */
     public function run($SdkAppid, $CallbackCommand, $contenttype, $ClientIP, $OptPlatform)
     {

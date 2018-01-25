@@ -5,7 +5,7 @@
  * @license http://www.tintsoft.com/license/
  */
 
-namespace xutl\tim\message;
+namespace xutl\tim\messages;
 
 use xutl\tim\Message;
 

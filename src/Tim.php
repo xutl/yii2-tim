@@ -69,6 +69,7 @@ class Tim extends Component
     const GROUP_TYPE_BCHATROOM = 'BChatRoom';//在线成员广播大群
 
     /**
+     * @throws Exception
      * @throws InvalidConfigException
      */
     public function init()
@@ -120,6 +121,7 @@ class Tim extends Component
      * @param array $params
      * @param array $headers
      * @return object
+     * @throws Exception
      */
     public function api($url, $method = 'POST', array $params = [], array $headers = [])
     {

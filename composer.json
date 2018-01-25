@@ -19,7 +19,7 @@
   },
   "autoload": {
     "psr-4": {
-      "xutl\\tim\\": ""
+      "xutl\\tim\\": "src"
     }
   }
 }

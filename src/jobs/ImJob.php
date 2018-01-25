@@ -5,7 +5,7 @@
  * @license http://www.tintsoft.com/license/
  */
 
-namespace xutl\tim;
+namespace xutl\tim\jobs;
 
 use Yii;
 use yii\base\BaseObject;
