@@ -39,7 +39,7 @@ class Client extends \yii\httpclient\Client
     /**
      * @var string|Tim
      */
-    private $tim = 'tim';
+    private $im = 'im';
 
     /**
      * @inheritdoc
@@ -47,12 +47,12 @@ class Client extends \yii\httpclient\Client
     public function init()
     {
         parent::init();
-        $this->tim = Instance::ensure($this->tim, Tim::className());
+        $this->im = Instance::ensure($this->im, Tim::className());
         if (empty ($this->appId)) {
-            $this->appId = $this->tim->accountType;
+            $this->appId = $this->im->accountType;
         }
         if (empty ($this->accountType)) {
-            $this->accountType = $this->tim->accountType;
+            $this->accountType = $this->im->accountType;
         }
         $this->requestConfig['format'] = Client::FORMAT_JSON;
         $this->responseConfig['format'] = Client::FORMAT_JSON;
@@ -92,7 +92,7 @@ class Client extends \yii\httpclient\Client
             'sdkappid' => $this->appId,
             'random' => uniqid(),
             'contenttype' => 'json',
-            'usersig' => $this->tim->signature->make($this->identifier)
+            'usersig' => $this->im->signature->make($this->identifier)
         ];
         $url = $this->composeUrl($event->request->getUrl(), $commonParams);
         $event->request->setUrl($url);

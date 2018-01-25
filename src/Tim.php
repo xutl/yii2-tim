@@ -14,12 +14,12 @@ use yii\di\Instance;
 use yii\di\ServiceLocator;
 use yii\base\InvalidConfigException;
 use xutl\tim\components\Signature;
-use xutl\tim\components\User;
+use xutl\tim\components\Account;
 
 /**
  * 云通信服务类
  * @property Signature $signature 签名处理
- * @property User $user User处理
+ * @property Account $account Account处理
  *
  * @package xutl\tim
  */
@@ -101,13 +101,13 @@ class Tim extends ServiceLocator
     }
 
     /**
-     * 获取与欧诺个户实例
-     * @return User|object
+     * 获取账号实例
+     * @return Account|object
      * @throws InvalidConfigException
      */
-    public function getUser()
+    public function getAccount()
     {
-        return $this->get('user');
+        return $this->get('account');
     }
 
     /**
@@ -118,7 +118,7 @@ class Tim extends ServiceLocator
     {
         return [
             'signature' => ['class' => 'xutl\tim\components\Signature'],
-            'user' => ['class' => 'xutl\tim\components\User'],
+            'account' => ['class' => 'xutl\tim\components\Account'],
         ];
     }
 }

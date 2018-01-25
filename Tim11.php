@@ -19,7 +19,7 @@ use yii\httpclient\Client;
  * @see https://www.qcloud.com/document/product/269
  * @package xutl\tim
  */
-class Tim extends Component
+class Tim11 extends Component
 {
     /**
      * @var int AppId
