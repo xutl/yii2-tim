@@ -7,31 +7,40 @@
 
 namespace xutl\tim\components;
 
-use yii\base\Component;
+use xutl\tim\Client;
 
-class User extends Component
+/**
+ * Class User
+ * @package xutl\tim\components
+ */
+class User extends Client
 {
 
 
     public function Import($identifier, $nickname, $faceUrl, $type)
     {
-        return $this->api('im_open_login_svc/account_import', 'POST', [
+        $response = $this->post('im_open_login_svc/account_import', [
             'Identifier' => $identifier,
             'Nick' => $nickname,
             'FaceUrl' => $faceUrl,
             'Type' => $type,
         ]);
+        return $response->data;
     }
 
-    public function MultiImport(){
-        return $this->api('im_open_login_svc/multiaccount_import', 'POST', [
+    public function MultiImport($accounts = [])
+    {
+        $response = $this->post('im_open_login_svc/multiaccount_import', [
             'Accounts' => $accounts,
         ]);
+        return $response->data;
     }
 
-    public function Kick(){
-        return $this->api('im_open_login_svc/kick', 'POST', [
+    public function Kick($identifier)
+    {
+        $response = $this->post('im_open_login_svc/kick', [
             'Identifier' => $identifier,
         ]);
+        return $response->data;
     }
 }
