@@ -8,6 +8,7 @@
 namespace xutl\tim;
 
 use yii\di\Instance;
+use yii\helpers\ArrayHelper;
 use yii\httpclient\RequestEvent;
 
 /**
@@ -49,10 +50,13 @@ class Client extends \yii\httpclient\Client
         parent::init();
         $this->im = Instance::ensure($this->im, Tim::className());
         if (empty ($this->appId)) {
-            $this->appId = $this->im->accountType;
+            $this->appId = $this->im->appId;
         }
         if (empty ($this->accountType)) {
             $this->accountType = $this->im->accountType;
+        }
+        if (empty ($this->identifier)) {
+            $this->identifier = $this->im->identifier;
         }
         $this->requestConfig['format'] = Client::FORMAT_JSON;
         $this->responseConfig['format'] = Client::FORMAT_JSON;
@@ -72,7 +76,7 @@ class Client extends \yii\httpclient\Client
         } else {
             $url .= '&';
         }
-        //$url .= http_build_query($params, '', '&', PHP_QUERY_RFC3986);
+        //$url .= http_build_query($params, '', '&', PHP_QUERY_RFC1738);
         foreach ($params as $key => $val) {
             $url .= '&' . $key . '=' . $val;
         }
@@ -87,14 +91,14 @@ class Client extends \yii\httpclient\Client
      */
     public function RequestEvent(RequestEvent $event)
     {
-        $commonParams = [
+        $params = [
             'identifier' => $this->identifier,
             'sdkappid' => $this->appId,
             'random' => uniqid(),
             'contenttype' => 'json',
             'usersig' => $this->im->signature->make($this->identifier)
         ];
-        $url = $this->composeUrl($event->request->getUrl(), $commonParams);
+        $url = $this->composeUrl($event->request->getUrl(), $params);
         $event->request->setUrl($url);
     }
 
