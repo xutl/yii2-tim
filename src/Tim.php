@@ -7,14 +7,14 @@
 
 namespace xutl\tim;
 
-use xutl\tim\components\Signature;
-use xutl\tim\components\User;
 use Yii;
 use yii\base\Exception;
 use yii\caching\Cache;
 use yii\di\Instance;
 use yii\di\ServiceLocator;
 use yii\base\InvalidConfigException;
+use xutl\tim\components\Signature;
+use xutl\tim\components\User;
 
 /**
  * 云通信服务类
@@ -79,6 +79,15 @@ class Tim extends ServiceLocator
                 $config['components'][$id]['class'] = $component['class'];
             }
         }
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function init()
+    {
+        parent::init();
+        $this->cache = Instance::ensure($this->cache, Cache::className());
     }
 
     /**

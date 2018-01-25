@@ -43,7 +43,7 @@ class Signature extends Component
     /**
      * @var string|Tim
      */
-    public $tim = 'tim';
+    public $im = 'im';
 
     /**
      * @var bool 是否初始化OpenSSL
@@ -56,18 +56,18 @@ class Signature extends Component
     public function init()
     {
         parent::init();
-        $this->tim = Instance::ensure($this->tim, Tim::className());
+        $this->im = Instance::ensure($this->im, Tim::className());
         if (empty ($this->appId)) {
-            $this->appId = $this->tim->appId;
+            $this->appId = $this->im->appId;
         }
         if (empty ($this->accountType)) {
-            $this->accountType = $this->tim->accountType;
+            $this->accountType = $this->im->accountType;
         }
         if (empty ($this->privateKey)) {
-            $this->privateKey = $this->tim->privateKey;
+            $this->privateKey = $this->im->privateKey;
         }
         if (empty ($this->publicKey)) {
-            $this->publicKey = $this->tim->publicKey;
+            $this->publicKey = $this->im->publicKey;
         }
     }
 
@@ -117,7 +117,7 @@ class Signature extends Component
             'TLS.time' => (string)time()
         ];
         $cacheKey = [__CLASS__, 'identifier' => $identifier];
-        if (($signatureContent = $this->tim->cache->get($cacheKey)) === false) {
+        if (($signatureContent = $this->im->cache->get($cacheKey)) === false) {
             $content = $this->genSignatureContent($json);
             $signature = $this->makeSignature($content);
             $json['TLS.sig'] = base64_encode($signature);
@@ -133,7 +133,7 @@ class Signature extends Component
                 throw new Exception('gzcompress error.');
             }
             $signatureContent = $this->base64Encode($compressed);
-            $this->tim->cache->set($cacheKey, $signatureContent, $expireTime);
+            $this->im->cache->set($cacheKey, $signatureContent, $expireTime);
         }
         return $signatureContent;
     }
