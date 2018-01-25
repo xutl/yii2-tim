@@ -20,7 +20,7 @@ use yii\base\InvalidConfigException;
  * 云通信服务类
  * @property Signature $signature 签名处理
  * @property User $user User处理
- * 
+ *
  * @package xutl\tim
  */
 class Tim extends ServiceLocator
