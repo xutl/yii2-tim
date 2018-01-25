@@ -28,16 +28,6 @@ class Client extends \yii\httpclient\Client
     public $identifier;
 
     /**
-     * @var string 私钥
-     */
-    public $privateKey;
-
-    /**
-     * @var string 公钥
-     */
-    public $publicKey;
-
-    /**
      * @var string 网关地址
      */
     public $baseUrl = 'https://console.tim.qq.com/v4';
@@ -92,7 +82,6 @@ class Client extends \yii\httpclient\Client
      */
     public function RequestEvent(RequestEvent $event)
     {
-
         $commonParams = [
             'identifier' => $this->identifier,
             'sdkappid' => $this->appId,

@@ -8,6 +8,9 @@
 namespace xutl\tim;
 
 use Yii;
+use yii\base\Exception;
+use yii\caching\Cache;
+use yii\di\Instance;
 use yii\di\ServiceLocator;
 use yii\base\InvalidConfigException;
 
@@ -17,6 +20,67 @@ use yii\base\InvalidConfigException;
  */
 class Tim extends ServiceLocator
 {
+    /**
+     * @var int AppId
+     */
+    public $appId;
+
+    /**
+     * @var string 账户类型
+     */
+    public $accountType;
+
+    /**
+     * @var string 管理员账户
+     */
+    public $identifier;
+
+    /**
+     * @var string 私钥
+     */
+    public $privateKey;
+
+    /**
+     * @var string 公钥
+     */
+    public $publicKey;
+
+    /**
+     * @var string|Cache
+     */
+    public $cache = 'cache';
+
+    /**
+     * @var string 用户签名
+     */
+    private $_identifierSign;
+
+    /**
+     * Tim constructor.
+     * @param array $config
+     */
+    public function __construct($config = [])
+    {
+        $this->preInit($config);
+        parent::__construct($config);
+    }
+
+    /**
+     * 预处理组件
+     * @param array $config
+     */
+    public function preInit(&$config)
+    {
+        // merge core components with custom components
+        foreach ($this->coreComponents() as $id => $component) {
+            if (!isset($config['components'][$id])) {
+                $config['components'][$id] = $component;
+            } elseif (is_array($config['components'][$id]) && !isset($config['components'][$id]['class'])) {
+                $config['components'][$id]['class'] = $component['class'];
+            }
+        }
+    }
+
     /**
      * @throws Exception
      * @throws InvalidConfigException
@@ -45,6 +109,9 @@ class Tim extends ServiceLocator
         if (empty ($this->publicKey)) {
             throw new InvalidConfigException ('The "adminUser" property must be set.');
         }
+        if ($this->cache !== null) {
+            $this->cache = Instance::ensure($this->cache, Cache::class);
+        }
         $privateKey = Yii::getAlias($this->privateKey);
         $this->privateKey = openssl_pkey_get_private("file://" . $privateKey);
         if ($this->privateKey === false) {
@@ -58,21 +125,7 @@ class Tim extends ServiceLocator
         $this->_identifierSign = $this->genSig($this->identifier);
     }
 
-    /**
-     * 预处理组件
-     * @param array $config
-     */
-    public function preInit(&$config)
-    {
-        // merge core components with custom components
-        foreach ($this->coreComponents() as $id => $component) {
-            if (!isset($config['components'][$id])) {
-                $config['components'][$id] = $component;
-            } elseif (is_array($config['components'][$id]) && !isset($config['components'][$id]['class'])) {
-                $config['components'][$id]['class'] = $component['class'];
-            }
-        }
-    }
+
 
     /**
      * Returns the configuration of aliyun components.
