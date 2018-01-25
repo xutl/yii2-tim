@@ -16,8 +16,15 @@ use xutl\tim\Client;
 class User extends Client
 {
 
-
-    public function Import($identifier, $nickname, $faceUrl, $type)
+    /**
+     * 独立模式账号导入接口
+     * @param string $identifier 用户名，长度不超过 32 字节
+     * @param string $nickname 用户昵称
+     * @param string $faceUrl 用户头像URL。
+     * @param integer $type 帐号类型，开发者默认无需填写，值0表示普通帐号，1表示机器人帐号。
+     * @return mixed
+     */
+    public function Import($identifier, $nickname = '', $faceUrl = '', $type = 0)
     {
         $response = $this->post('im_open_login_svc/account_import', [
             'Identifier' => $identifier,
