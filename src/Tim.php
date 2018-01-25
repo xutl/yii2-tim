@@ -8,6 +8,7 @@
 namespace xutl\tim;
 
 use xutl\tim\components\Signature;
+use xutl\tim\components\User;
 use Yii;
 use yii\base\Exception;
 use yii\caching\Cache;
@@ -18,7 +19,8 @@ use yii\base\InvalidConfigException;
 /**
  * 云通信服务类
  * @property Signature $signature 签名处理
- *
+ * @property User $user User处理
+ * 
  * @package xutl\tim
  */
 class Tim extends ServiceLocator
@@ -80,13 +82,23 @@ class Tim extends ServiceLocator
     }
 
     /**
-     * 获取CDN实例
+     * 获取签名实例
      * @return object|Signature
      * @throws InvalidConfigException
      */
     public function getSignature()
     {
         return $this->get('signature');
+    }
+
+    /**
+     * 获取与欧诺个户实例
+     * @return User|object
+     * @throws InvalidConfigException
+     */
+    public function getUser()
+    {
+        return $this->get('user');
     }
 
     /**
@@ -97,6 +109,7 @@ class Tim extends ServiceLocator
     {
         return [
             'signature' => ['class' => 'xutl\tim\components\Signature'],
+            'user' => ['class' => 'xutl\tim\components\User'],
         ];
     }
 }
