@@ -35,7 +35,12 @@ class User extends Client
         return $response->data;
     }
 
-    public function MultiImport($accounts = [])
+    /**
+     * 批量导入账户
+     * @param array $accounts 用户名，单个用户名长度不超过 32 字节，单次最多导入100个用户名
+     * @return mixed
+     */
+    public function MultiImport(array $accounts)
     {
         $response = $this->post('im_open_login_svc/multiaccount_import', [
             'Accounts' => $accounts,
@@ -43,6 +48,11 @@ class User extends Client
         return $response->data;
     }
 
+    /**
+     * 帐号登录态失效接口
+     * @param string $identifier 用户名
+     * @return mixed
+     */
     public function Kick($identifier)
     {
         $response = $this->post('im_open_login_svc/kick', [
