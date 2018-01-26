@@ -7,13 +7,13 @@
 
 namespace xutl\tim\components;
 
-use xutl\tim\Client;
+use xutl\tim\BaseClient;
 
 /**
  * Class User
  * @package xutl\tim\components
  */
-class Account extends Client
+class Account extends BaseClient
 {
 
     /**

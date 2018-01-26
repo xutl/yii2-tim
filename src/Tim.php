@@ -121,6 +121,23 @@ class Tim extends ServiceLocator
     }
 
     /**
+     * 调用未封装的接口
+     * @param string $uri 接口名称
+     * @param array $params 接口参数
+     * @return mixed
+     */
+    public function createRequest($uri, $params)
+    {
+        $response = (new BaseClient())
+            ->createRequest()
+            ->setUrl($uri)
+            ->setMethod('POST')
+            ->setData($params)
+            ->send();
+        return $response->data;
+    }
+
+    /**
      * Returns the configuration of aliyun components.
      * @see set()
      */

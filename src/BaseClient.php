@@ -8,6 +8,7 @@
 namespace xutl\tim;
 
 use yii\di\Instance;
+use yii\httpclient\Client;
 use yii\helpers\ArrayHelper;
 use yii\httpclient\RequestEvent;
 use yii\web\ServerErrorHttpException;
@@ -16,7 +17,7 @@ use yii\web\ServerErrorHttpException;
  * Class Client
  * @package xutl\tim
  */
-class Client extends \yii\httpclient\Client
+class BaseClient extends Client
 {
     /**
      * @var int AppId
@@ -113,8 +114,6 @@ class Client extends \yii\httpclient\Client
         if ($event->response->isOk) {
             if (isset($event->response->data['ActionStatus']) && $event->response->data['ActionStatus'] == 'FAIL') {
                 throw new ServerErrorHttpException($event->response->data['ErrorInfo'], $event->response->data['ErrorCode']);
-            } else if (isset($event->response->data['ActionStatus']) && $event->response->data['ActionStatus'] == 'OK') {
-                //$event->response->setData($event->response->data['QueryResult']);
             }
         }
     }

@@ -7,13 +7,13 @@
 
 namespace xutl\tim\components;
 
-use xutl\tim\Client;
+use xutl\tim\BaseClient;
 
 /**
  * Class Group
  * @package xutl\tim\components
  */
-class Group extends Client
+class Group extends BaseClient
 {
     /**
      * @param int $limit 限制回包中GroupIdList中群组的个数，不得超过10000；
