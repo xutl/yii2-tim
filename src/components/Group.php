@@ -31,41 +31,49 @@ class Group extends BaseClient
     const APPLY_JOIN_OPTION_DISABLE_APPLY = 'DisableApply';//不允许任何人加入，只能群主邀请
 
     /**
-     * 解散群组
-     * @param string $groupId
-     * @return array
-     */
-    public function destroy($groupId)
-    {
-        return $this->sendRequest('group_open_http_svc/get_appid_group_list', [
-            'GroupId' => $groupId,
-        ]);
-    }
-
-    /**
-     * @param int $limit 限制回包中GroupIdList中群组的个数，不得超过10000；
-     * @param int $next 控制分页。对于分页请求，第一次填0，后面的请求填上一次返回的Next字段，当返回的Next为0，代表所有的群都拉取到了；
-     * 假设需要分页拉取，每页展示20个，则第一页的请求参数应当为{“Limit” : 20, “Next” : 0}，第二页的请求参数应当为{“Limit” : 20, “Next” : 上次返回的Next字段}，依此类推；
-     * @param string $type 可以指定拉取的群组所属的群组形态，如Public，Private，ChatRoom、AVChatRoom和BChatRoom。
-     * @return array
-     */
-    public function lis($limit = 1000, $next = 0, $type = self::TYPE_PUBLIC)
-    {
-        return $this->sendRequest('group_open_http_svc/get_appid_group_list', [
-            'Limit' => $limit,
-            'Next' => $next,
-            'GroupType' => $type
-        ]);
-    }
-
-    /**
      * 创建群组
      * @param array $params
      * @return array
+     * @see https://cloud.tencent.com/document/product/269/1615
      */
     public function create(array $params)
     {
         return $this->sendRequest('group_open_http_svc/create_group', $params);
+    }
+
+    /**
+     * 修改群组基础资料
+     * @param array $params
+     * @return array
+     * @see https://cloud.tencent.com/document/product/269/1620
+     */
+    public function modifyBaseInfo(array $params)
+    {
+        return $this->sendRequest('group_open_http_svc/modify_group_base_info', $params);
+    }
+
+    /**
+     * 解散群组
+     * @param string $groupId
+     * @return array
+     * @see https://cloud.tencent.com/document/product/269/1624
+     */
+    public function destroy($groupId)
+    {
+        return $this->sendRequest('group_open_http_svc/get_appid_group_list', [
+            'GroupId' => strval($groupId),
+        ]);
+    }
+
+    /**
+     * 获取群组详细资料
+     * @param array $params
+     * @return array
+     * @see https://cloud.tencent.com/document/product/269/1616
+     */
+    public function info(array $params)
+    {
+        return $this->sendRequest('group_open_http_svc/get_group_info', $params);
     }
 
     /**
@@ -88,16 +96,24 @@ class Group extends BaseClient
     }
 
     /**
-     * 获取群组详细资料
-     * @param array $groupIdList
+     * @param int $limit 限制回包中GroupIdList中群组的个数，不得超过10000；
+     * @param int $next 控制分页。对于分页请求，第一次填0，后面的请求填上一次返回的Next字段，当返回的Next为0，代表所有的群都拉取到了；
+     * 假设需要分页拉取，每页展示20个，则第一页的请求参数应当为{“Limit” : 20, “Next” : 0}，第二页的请求参数应当为{“Limit” : 20, “Next” : 上次返回的Next字段}，依此类推；
+     * @param string $type 可以指定拉取的群组所属的群组形态，如Public，Private，ChatRoom、AVChatRoom和BChatRoom。
      * @return array
      */
-    public function info($groupIdList = [])
+    public function groupList($limit = 1000, $next = 0, $type = self::TYPE_PUBLIC)
     {
-        return $this->sendRequest('group_open_http_svc/create_group', [
-            'GroupIdList' => $groupIdList
+        return $this->sendRequest('group_open_http_svc/get_appid_group_list', [
+            'Limit' => $limit,
+            'Next' => $next,
+            'GroupType' => $type
         ]);
     }
+
+
+
+
 
     /**
      * 获取群组成员详细资料
@@ -108,7 +124,7 @@ class Group extends BaseClient
      * @param array $infoFilter
      * @return array
      */
-    public function groupMemberInfo($id, $limit = 100, $offset = 0, $roleFilter = [], $infoFilter = [])
+    public function memberInfo($id, $limit = 100, $offset = 0, $roleFilter = [], $infoFilter = [])
     {
         $params = ['GroupId' => $id, 'Limit' => $limit, 'Offset' => $offset];
         if ($roleFilter) $params['MemberRoleFilter'] = $roleFilter;

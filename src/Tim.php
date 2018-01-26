@@ -21,6 +21,7 @@ use xutl\tim\components\Account;
  * 云通信服务类
  * @property Signature $signature 签名处理
  * @property Account $account Account处理
+ * @property Group $group 群组操作
  *
  * @package xutl\tim
  */
