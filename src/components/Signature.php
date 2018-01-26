@@ -17,6 +17,9 @@ use yii\base\InvalidConfigException;
 /**
  * Class Signature
  * @package xutl\tim\components
+ *
+ * @author Tongle Xu <xutongle@gmail.com>
+ * @since 1.0
  */
 class Signature extends Component
 {

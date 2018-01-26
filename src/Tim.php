@@ -128,13 +128,7 @@ class Tim extends ServiceLocator
      */
     public function createRequest($uri, $params)
     {
-        $response = (new BaseClient())
-            ->createRequest()
-            ->setUrl($uri)
-            ->setMethod('POST')
-            ->setData($params)
-            ->send();
-        return $response->data;
+        return (new BaseClient())->sendRequest($uri, $params);
     }
 
     /**

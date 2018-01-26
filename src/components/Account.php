@@ -10,8 +10,11 @@ namespace xutl\tim\components;
 use xutl\tim\BaseClient;
 
 /**
- * Class User
+ * Class Account
  * @package xutl\tim\components
+ *
+ * @author Tongle Xu <xutongle@gmail.com>
+ * @since 1.0
  */
 class Account extends BaseClient
 {
@@ -32,8 +35,7 @@ class Account extends BaseClient
         ];
         if (!is_null($nickname)) $params['Nick'] = $nickname;
         if (!is_null($faceUrl)) $params['FaceUrl'] = $faceUrl;
-        $response = $this->post('im_open_login_svc/account_import', $params)->send();
-        return $response->data;
+        return $this->sendRequest('im_open_login_svc/account_import', $params);
     }
 
     /**
@@ -43,10 +45,9 @@ class Account extends BaseClient
      */
     public function multiImport(array $accounts)
     {
-        $response = $this->post('im_open_login_svc/multiaccount_import', [
+        return $this->sendRequest('im_open_login_svc/multiaccount_import', [
             'Accounts' => $accounts,
-        ])->send();
-        return $response->data;
+        ]);
     }
 
     /**
@@ -56,10 +57,9 @@ class Account extends BaseClient
      */
     public function kick($identifier)
     {
-        $response = $this->post('im_open_login_svc/kick', [
+        return $this->sendRequest('im_open_login_svc/kick', [
             'Identifier' => strval($identifier),
-        ])->send();
-        return $response->data;
+        ]);
     }
 
     /**
@@ -72,10 +72,8 @@ class Account extends BaseClient
         if (!is_array($accounts)) {
             $accounts = [strval($accounts)];
         }
-        $response = $this->post('openim/querystate', [
+        return $this->sendRequest('openim/querystate', [
             'To_Account' => $accounts,
-        ])->send();
-
-        return $response->data;
+        ]);
     }
 }

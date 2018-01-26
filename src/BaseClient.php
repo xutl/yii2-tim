@@ -117,4 +117,19 @@ class BaseClient extends Client
             }
         }
     }
+
+    /**
+     * 调用未封装的接口
+     * Creates 'POST' request.
+     * @param array|string $url target URL.
+     * @param array|string $data if array - request data, otherwise - request content.
+     * @param array $headers request headers.
+     * @param array $options request options.
+     * @return array
+     */
+    public function sendRequest($url, $data = null, $headers = [], $options = [])
+    {
+        $response = $this->post($url, $data, $headers, $options)->send();
+        return $response->data;
+    }
 }
