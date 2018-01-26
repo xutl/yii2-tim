@@ -10,6 +10,7 @@ namespace xutl\tim;
 use yii\di\Instance;
 use yii\helpers\ArrayHelper;
 use yii\httpclient\RequestEvent;
+use yii\web\ServerErrorHttpException;
 
 /**
  * Class Client
@@ -61,24 +62,24 @@ class Client extends \yii\httpclient\Client
         $this->requestConfig['format'] = Client::FORMAT_JSON;
         $this->responseConfig['format'] = Client::FORMAT_JSON;
         $this->on(Client::EVENT_BEFORE_SEND, [$this, 'RequestEvent']);
+        $this->on(Client::EVENT_AFTER_SEND, [$this, 'ResponseEvent']);
     }
 
     /**
-     * 合并URL和参数
+     * Composes URL from base URL and GET params.
      * @param string $url base URL.
      * @param array $params GET params.
      * @return string composed URL.
      */
     protected function composeUrl($url, array $params = [])
     {
-        if (strpos($url, '?') === false) {
-            $url .= '?';
-        } else {
-            $url .= '&';
-        }
-        //$url .= http_build_query($params, '', '&', PHP_QUERY_RFC1738);
-        foreach ($params as $key => $val) {
-            $url .= '&' . $key . '=' . $val;
+        if (!empty($params)) {
+            if (strpos($url, '?') === false) {
+                $url .= '?';
+            } else {
+                $url .= '&';
+            }
+            $url .= http_build_query($params, '', '&', PHP_QUERY_RFC3986);
         }
         return $url;
     }
@@ -102,4 +103,19 @@ class Client extends \yii\httpclient\Client
         $event->request->setUrl($url);
     }
 
+    /**
+     * 响应事件
+     * @param RequestEvent $event
+     * @throws ServerErrorHttpException
+     */
+    public function ResponseEvent(RequestEvent $event)
+    {
+        if ($event->response->isOk) {
+            if (isset($event->response->data['ActionStatus']) && $event->response->data['ActionStatus'] == 'FAIL') {
+                throw new ServerErrorHttpException($event->response->data['ErrorInfo'], $event->response->data['ErrorCode']);
+            } else if (isset($event->response->data['ActionStatus']) && $event->response->data['ActionStatus'] == 'OK') {
+                //$event->response->setData($event->response->data['QueryResult']);
+            }
+        }
+    }
 }

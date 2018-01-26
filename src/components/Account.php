@@ -24,14 +24,15 @@ class Account extends Client
      * @param integer $type 帐号类型，开发者默认无需填写，值0表示普通帐号，1表示机器人帐号。
      * @return mixed
      */
-    public function import($identifier, $nickname = '', $faceUrl = '', $type = 0)
+    public function import($identifier, $nickname = null, $faceUrl = null, $type = 0)
     {
-        $response = $this->post('im_open_login_svc/account_import', [
-            'Identifier' => $identifier,
-            'Nick' => $nickname,
-            'FaceUrl' => $faceUrl,
-            'Type' => $type,
-        ])->send();
+        $params = [
+            'Identifier' => strval($identifier),
+            'Type' => $type
+        ];
+        if (!is_null($nickname)) $params['Nick'] = $nickname;
+        if (!is_null($faceUrl)) $params['FaceUrl'] = $faceUrl;
+        $response = $this->post('im_open_login_svc/account_import', $params)->send();
         return $response->data;
     }
 
@@ -56,7 +57,7 @@ class Account extends Client
     public function kick($identifier)
     {
         $response = $this->post('im_open_login_svc/kick', [
-            'Identifier' => $identifier,
+            'Identifier' => strval($identifier),
         ])->send();
         return $response->data;
     }
@@ -69,11 +70,12 @@ class Account extends Client
     public function state($accounts)
     {
         if (!is_array($accounts)) {
-            $accounts = [$accounts];
+            $accounts = [strval($accounts)];
         }
-        $response = $this->get('openim/querystate', [
+        $response = $this->post('openim/querystate', [
             'To_Account' => $accounts,
         ])->send();
+
         return $response->data;
     }
 }

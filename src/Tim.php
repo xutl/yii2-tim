@@ -7,6 +7,7 @@
 
 namespace xutl\tim;
 
+use xutl\tim\components\Group;
 use Yii;
 use yii\base\Exception;
 use yii\caching\Cache;
@@ -101,6 +102,15 @@ class Tim extends ServiceLocator
     }
 
     /**
+     * @return Group|object
+     * @throws InvalidConfigException
+     */
+    public function getGroup()
+    {
+        return $this->get('group');
+    }
+
+    /**
      * 获取账号实例
      * @return Account|object
      * @throws InvalidConfigException
@@ -119,6 +129,7 @@ class Tim extends ServiceLocator
         return [
             'signature' => ['class' => 'xutl\tim\components\Signature'],
             'account' => ['class' => 'xutl\tim\components\Account'],
+            'group' => ['class' => 'xutl\tim\components\Group'],
         ];
     }
 }
