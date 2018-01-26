@@ -11,6 +11,7 @@ use Yii;
 use yii\base\Action;
 use yii\di\Instance;
 use yii\web\Response;
+use xutl\tim\Tim;
 
 /**
  * Class CallbackAction
