@@ -76,4 +76,17 @@ class Account extends BaseClient
             'To_Account' => $accounts,
         ]);
     }
+
+	/**
+     * 资料设置接口
+     * @param string $identifier 用户名
+     * @return mixed
+     */
+    public function profileSet($identifier, $items)
+    {
+        return $this->sendRequest('profile/portrait_set', [
+            'From_Account' => strval($identifier),
+            'ProfileItem' => $items,
+        ]);
+    }
 }
