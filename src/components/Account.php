@@ -77,7 +77,7 @@ class Account extends BaseClient
         ]);
     }
 
-	/**
+    /**
      * 资料设置接口
      * @param string $identifier 用户名
      * @return mixed

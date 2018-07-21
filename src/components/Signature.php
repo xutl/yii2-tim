@@ -55,11 +55,12 @@ class Signature extends Component
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
      */
     public function init()
     {
         parent::init();
-        $this->im = Instance::ensure($this->im, Tim::className());
+        $this->im = Instance::ensure($this->im, Tim::class);
         if (empty ($this->appId)) {
             $this->appId = $this->im->appId;
         }
@@ -119,7 +120,7 @@ class Signature extends Component
             'TLS.version' => '201512300000',
             'TLS.time' => (string)time()
         ];
-        $cacheKey = [__CLASS__, 'identifier' => $identifier];
+        $cacheKey = [__CLASS__, 'identifier' => $identifier, 'time' => date('Ymd')];
         if (($signatureContent = $this->im->cache->get($cacheKey)) === false) {
             $content = $this->genSignatureContent($json);
             $signature = $this->makeSignature($content);
