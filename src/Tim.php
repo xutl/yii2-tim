@@ -7,25 +7,18 @@
 
 namespace xutl\tim;
 
-use xutl\tim\components\Group;
-use Yii;
-use yii\base\Exception;
+use yii\base\Component;
 use yii\caching\Cache;
 use yii\di\Instance;
-use yii\di\ServiceLocator;
 use yii\base\InvalidConfigException;
-use xutl\tim\components\Signature;
-use xutl\tim\components\Account;
+use XuTL\QCloud\Tim\Tim as BaseTIM;
 
 /**
  * 云通信服务类
- * @property Signature $signature 签名处理
- * @property Account $account Account处理
- * @property Group $group 群组操作
  *
  * @package xutl\tim
  */
-class Tim extends ServiceLocator
+class Tim extends Component
 {
     /**
      * @var int AppId
@@ -58,90 +51,28 @@ class Tim extends ServiceLocator
     public $cache = 'cache';
 
     /**
-     * Tim constructor.
-     * @param array $config
+     * @var BaseTIM
      */
-    public function __construct($config = [])
-    {
-        $this->preInit($config);
-        parent::__construct($config);
-    }
-
-    /**
-     * 预处理组件
-     * @param array $config
-     */
-    public function preInit(&$config)
-    {
-        // merge core components with custom components
-        foreach ($this->coreComponents() as $id => $component) {
-            if (!isset($config['components'][$id])) {
-                $config['components'][$id] = $component;
-            } elseif (is_array($config['components'][$id]) && !isset($config['components'][$id]['class'])) {
-                $config['components'][$id]['class'] = $component['class'];
-            }
-        }
-    }
+    private $client;
 
     /**
      * @inheritdoc
+     * @throws InvalidConfigException
      */
     public function init()
     {
         parent::init();
-        $this->cache = Instance::ensure($this->cache, Cache::className());
+        $this->client = new BaseTIM($this->appId, $this->accountType, $this->privateKey, $this->publicKey, $this->identifier);
+        $this->cache = Instance::ensure($this->cache, Cache::class);
     }
 
     /**
-     * 获取签名实例
-     * @return object|Signature
-     * @throws InvalidConfigException
-     */
-    public function getSignature()
-    {
-        return $this->get('signature');
-    }
-
-    /**
-     * @return Group|object
-     * @throws InvalidConfigException
-     */
-    public function getGroup()
-    {
-        return $this->get('group');
-    }
-
-    /**
-     * 获取账号实例
-     * @return Account|object
-     * @throws InvalidConfigException
-     */
-    public function getAccount()
-    {
-        return $this->get('account');
-    }
-
-    /**
-     * 调用未封装的接口
-     * @param string $uri 接口名称
-     * @param array $params 接口参数
+     * @param string $method
+     * @param array $parameters
      * @return mixed
      */
-    public function createRequest($uri, $params)
+    public function __call($method, $parameters)
     {
-        return (new BaseClient())->sendRequest($uri, $params);
-    }
-
-    /**
-     * Returns the configuration of aliyun components.
-     * @see set()
-     */
-    public function coreComponents()
-    {
-        return [
-            'signature' => ['class' => 'xutl\tim\components\Signature'],
-            'account' => ['class' => 'xutl\tim\components\Account'],
-            'group' => ['class' => 'xutl\tim\components\Group'],
-        ];
+        return call_user_func_array([$this->client, $method], $parameters);
     }
 }
