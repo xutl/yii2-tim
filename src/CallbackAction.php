@@ -5,13 +5,12 @@
  * @license http://www.tintsoft.com/license/
  */
 
-namespace xutl\tim\actions;
+namespace xutl\tim;
 
 use Yii;
 use yii\base\Action;
 use yii\di\Instance;
 use yii\web\Response;
-use xutl\tim\Tim;
 
 /**
  * Class CallbackAction
@@ -40,7 +39,7 @@ class CallbackAction extends Action
     {
         parent::init();
         $this->controller->enableCsrfValidation = false;
-        $this->im = Instance::ensure($this->im, Tim::className());
+        $this->im = Instance::ensure($this->im, Tim::class);
         Yii::$app->response->format = Response::FORMAT_JSON;
     }
 

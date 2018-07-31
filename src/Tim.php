@@ -67,6 +67,22 @@ class Tim extends Component
     }
 
     /**
+     * 获取用户登录签名
+     * @param string $identifier
+     * @param int $expire 默认有效期30天
+     * @return mixed|string
+     */
+    public function getLoginSignature($identifier, $expire = 2592000)
+    {
+        $cacheKey = [__CLASS__, 'identifier' => $identifier];
+        if (($signatureContent = $this->cache->get($cacheKey)) === false) {
+            $signatureContent = $this->client->getLoginSignature($identifier, $expire);
+            $this->cache->set($cacheKey, $signatureContent, 259200);
+        }
+        return $signatureContent;
+    }
+
+    /**
      * @param string $method
      * @param array $parameters
      * @return mixed
