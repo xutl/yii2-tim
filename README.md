@@ -8,13 +8,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```bash
-$ composer require xutl/yii2-tim:~2.0
+$ composer require xutl/yii2-tim:~3.0
 ```
 
 or add
 
 ```
-"xutl/yii2-tim": "~2.0"
+"xutl/yii2-tim": "~3.0"
 ```
 
 to the `require` section of your `composer.json` file.
@@ -33,8 +33,8 @@ return [
             'appId' => '123456',
             'accountType' => '123456',
             'identifier' => 'webmaster',
-            'privateKey' => '@common/keys/im_private.key',
-            'publicKey' => '@common/keys/im_public.key',
+            'privateKey' => '私钥字符串一行',
+            'publicKey' => '公钥字符串一行',
         ],
     ]
 ];
@@ -46,7 +46,7 @@ return [
 ```php
 
 /** var Tim $im */
-$im = Yii::$app->im->getAccount();
-$res = $im->import('被导入的账号');
+$im = Yii::$app->im->getAccount('test');
+$res = $im->kick();
 print_r($res);
 ```
