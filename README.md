@@ -32,7 +32,7 @@ return [
             'class' => 'xutl\tim\Tim',
             'appId' => '123456',
             'accountType' => '123456',
-            'identifier' => 'webmaster',
+            'administrator' => 'webmaster',
             'privateKey' => '私钥字符串一行',
             'publicKey' => '公钥字符串一行',
         ],

@@ -33,7 +33,7 @@ class Tim extends Component
     /**
      * @var string 管理员账户
      */
-    public $identifier;
+    public $administrator;
 
     /**
      * @var string 私钥
@@ -62,7 +62,7 @@ class Tim extends Component
     public function init()
     {
         parent::init();
-        $this->client = new BaseTIM($this->appId, $this->accountType, $this->privateKey, $this->publicKey, $this->identifier);
+        $this->client = new BaseTIM($this->appId, $this->accountType, $this->privateKey, $this->publicKey, $this->administrator);
         $this->cache = Instance::ensure($this->cache, Cache::class);
     }
 
