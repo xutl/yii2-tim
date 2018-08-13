@@ -16,7 +16,7 @@ use XuTL\QCloud\Tim\Tim as BaseTIM;
 /**
  * 云通信服务类
  *
- * @package xutl\tim
+ * @mixin \XuTL\QCloud\Tim\Tim
  */
 class Tim extends Component
 {
